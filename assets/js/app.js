@@ -71,7 +71,6 @@ logoutBtn.addEventListener("click", function () {
   
                 document.getElementById("email").value = "";
                 document.getElementById("password").value = "";
-                loginError.textContent = "";
             });
         } 
     });
@@ -131,7 +130,6 @@ ticketForm.addEventListener('submit', function(e) {
             });
         }
     })
-    .catch(err => console.log(err));
 });
 
 let ticketsArray = []; 
@@ -153,8 +151,9 @@ function loadTickets() {
                 <td>
                 <div class=" gap: 5px;">
                     <button type="button" class="btn btn-primary" onclick="viewTicket(${ticket.id})">View</button>
-                     <button type="button" class="btn btn-success" onclick="editTicket(${ticket.id})">Edit</button>
+                     <button type="button" class="btn btn-success" onclick="editTicket(${ticket.id})">Update</button>
                     <button type="button" class="btn btn-secondary" onclick="addcomment(${ticket.id})">Add Comment</button>
+                      <button type="button" class="btn btn-danger" onclick="delete_ticket(${ticket.id})">Delete</button>
                      <div/>
                 </td>
             `;
@@ -163,7 +162,6 @@ function loadTickets() {
     })
     .catch(err => console.log(err));
 }
-
 
 function viewTicket(ticketId) {
     const ticket = ticketsArray.find(t => t.id === ticketId);
@@ -349,3 +347,51 @@ commentform.addEventListener('submit', function(e) {
         });
     });
 });
+
+function delete_ticket(ticketId) {
+    Swal.fire({
+        title: 'Are you sure you want to delete this ticket?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, delete it!',
+        cancelButtonText: 'No, keep it',
+        reverseButtons: true
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch('api/delete_ticket.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ticket_id: ticketId })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Deleted!',
+                        text: 'The ticket has been deleted.',
+                        timer: 1500,
+                        showConfirmButton: false
+                    }).then(() => {
+                        loadDashboardCounts();
+                        loadTickets();
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: data.message || 'Failed to delete the ticket.'
+                    });
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Something went wrong while deleting the ticket.'
+                });
+            });
+        }
+    });
+}

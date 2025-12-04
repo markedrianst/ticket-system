@@ -14,8 +14,8 @@ if (!$user_id) {
 $sql = "SELECT t.*, u.name AS reporter_name, u.email AS reporter_email
         FROM tickets t
         LEFT JOIN users u ON t.reporter_id = u.id
-        WHERE t.reporter_id = ?
-        ORDER BY t.id DESC";
+        WHERE t.reporter_id = ? AND t.isActive = 1
+        ORDER BY t.id ASC";
 
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $user_id);

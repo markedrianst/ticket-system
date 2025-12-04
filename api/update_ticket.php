@@ -3,7 +3,11 @@ include "../config/db.php";
 
 $input = json_decode(file_get_contents("php://input"), true);
 
-$ticket_id = $input['ticket_id'];
+$ticket_id = $input['ticket_id'] ?? null;
+$title = $input['title'] ?? '';
+$description = $input['description'] ?? '';
+$priority = $input['priority'] ?? '';
+$status = $input['status'] ?? '';
 
 $sql = "UPDATE tickets 
         SET title = ?, description = ?, priority = ?, status = ?
@@ -13,16 +17,18 @@ $stmt->bind_param("ssssi", $title, $description, $priority, $status, $ticket_id)
 
 $response = [];
 if ($stmt->execute()) {
-    $response = ["success" => true,
-    "data" => [
+    $response = [
+        "success" => true,
+        "data" => [
             "Id" => $ticket_id,
             "title" => $title,
             "description" => $description,
             "priority" => $priority,
             "status" => $status
-        ] ];
+        ]
+    ];
 } else {
-    $response = ["success" => false];
+    $response = ["success" => false, "error" => $stmt->error];
 }
 
 echo json_encode($response);

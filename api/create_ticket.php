@@ -17,16 +17,15 @@ $status = 'New';
 $priority = $input['tickprio'] ?? '';
 $reporter_id = $_SESSION['user_id']; // get from session
 $created_at = date('Y-m-d H:i:s');
+$isActive = 1;
 
-// Validate input
 if (empty($title) || empty($description)) {
     echo json_encode(["success" => false, "message" => "Title and description are required."]);
     exit;
 }
 
-// Prepare SQL
-$sql = "INSERT INTO tickets (title, description, status, priority, reporter_id, created_at)
-        VALUES (?, ?, ?, ?, ?, ?)";
+$sql = "INSERT INTO tickets (title, description, status, priority, reporter_id, created_at,isActive)
+        VALUES (?, ?, ?, ?, ?, ?,?)";
 
 $stmt = $conn->prepare($sql);
 
@@ -35,7 +34,8 @@ if (!$stmt) {
     exit;
 }
 
-$stmt->bind_param("ssssis", $title, $description, $status, $priority, $reporter_id, $created_at);
+$stmt->bind_param("ssssiss", $title, $description, $status, $priority, $reporter_id, $created_at,$isActive);
+
 if ($stmt->execute()) {
     $ticket_id = $stmt->insert_id;
     echo json_encode([
