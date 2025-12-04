@@ -7,6 +7,8 @@ const logoutBtn = document.getElementById("logout-btn");
 const ticketForm = document.getElementById('create-ticket-form');
 const formreset = document.getElementById('ticket-form');
 const ticketsTableBody = document.getElementById('ticket_list');
+const updateform=document.getElementById('editform')
+
 
 loginForm.addEventListener('submit', function(e){
     e.preventDefault();
@@ -149,7 +151,11 @@ function loadTickets() {
                 <td>${ticket.priority}</td>
                 <td>${ticket.created_at}</td>
                 <td>
+                <div class=" gap: 5px;">
                     <button type="button" class="btn btn-primary" onclick="viewTicket(${ticket.id})">View</button>
+                     <button type="button" class="btn btn-success" onclick="editTicket(${ticket.id})">Edit</button>
+                    <button type="button" class="btn btn-secondary" onclick="addcomment(${ticket.id})">Add Comment</button>
+                     <div/>
                 </td>
             `;
             ticketsTableBody.appendChild(row);
@@ -188,9 +194,158 @@ function viewTicket(ticketId) {
                 `;
                 commentsSection.appendChild(commentDiv);
             });
-
         })
         .catch(error => console.error(error));
         document.getElementById('viewdialog').showModal();
 }
 
+function editTicket(ticketId) {
+    const ticket = ticketsArray.find(t => t.id === ticketId);
+    if (!ticket) return;
+
+    const viewContent = document.getElementById('edit_ticket');
+
+    viewContent.innerHTML = `
+        <input type="hidden" id="edit_id" class="form-control" value="${ticket.id}" ><br>
+
+        <h5><strong>Title:</strong></h5>
+        <input type="text" id="edit_title" class="form-control" value="${ticket.title}"><br>
+
+        <h5><strong>Description:</strong></h5>
+        <textarea id="edit_description" class="form-control">${ticket.description}</textarea><br>
+
+        <h5><strong>Priority:</strong></h5>
+        <select id="ticket_priority1" class="form-select" required>
+            <option value="" disabled>Choose...</option>
+            <option value="Low">Low</option>
+            <option value="Medium">Medium</option>
+            <option value="High">High</option>
+        </select><br>
+
+        <h5><strong>Status:</strong></h5>
+            <select id="status" class="form-select" required>
+            <option value="New">New</option>
+            <option value="Resolved">Resolved</option>
+        </select>
+   
+
+    `;
+    document.getElementById("status").value = ticket.status;
+    document.getElementById("ticket_priority1").value = ticket.priority;
+    document.getElementById('editdialog').showModal();
+}
+
+updateform.addEventListener('submit', function(e) {
+        e.preventDefault();
+    const ticketId = document.getElementById('edit_id').value;
+    const title = document.getElementById('edit_title').value;
+    const description = document.getElementById('edit_description').value;
+    const priority = document.getElementById('ticket_priority1').value;
+    const status = document.getElementById('status').value;
+
+    fetch('api/update_ticket.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            ticket_id: ticketId,
+            title: title,
+            description: description,
+            priority: priority,
+            status: status
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+                   document.getElementById('editdialog').close();
+            Swal.fire({
+                
+                icon: 'success',
+                title: 'Updated!',
+                text: 'Ticket updated successfully!',
+                timer: 2000,
+                showConfirmButton: false
+                
+            }).then(() => {
+         
+                loadDashboardCounts();
+                loadTickets();
+                
+            });
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: 'Update failed!',
+            });
+        }
+    })
+    .catch(error => console.error("Error updating:", error));
+});
+
+function addcomment(ticketId) {
+    const dialog = document.getElementById('commentdialog');
+    const commentsList = document.getElementById('comments-list');
+    const textarea = document.getElementById('edit_comments');
+    commentsList.innerHTML = '';
+    textarea.value = '';
+    dialog.dataset.ticketId = ticketId;
+
+    dialog.showModal();
+}
+
+const commentform = document.getElementById('commentform');
+commentform.addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const dialog = document.getElementById('commentdialog');
+    const ticketId = dialog.dataset.ticketId; 
+    const textarea = document.getElementById('edit_comments');
+
+
+    const commentText = textarea.value.trim();
+    if (!commentText) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Oops...',
+            text: 'Comment cannot be empty!'
+        });
+        return;
+    }
+
+    fetch('api/add_comment.php', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+            ticket_id: ticketId,
+            comment: commentText
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+                dialog.close();
+            Swal.fire({
+                icon: 'success',
+                title: 'Comment added!',
+                showConfirmButton: false,
+                timer: 1500
+            });
+
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: data.message || 'Failed to add comment.'
+            });
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Something went wrong while adding comment.'
+        });
+    });
+});

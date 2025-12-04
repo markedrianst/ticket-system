@@ -101,6 +101,7 @@
         </form>
         </dialog>
 
+
         <dialog id="viewdialog" class="p-4 rounded shadow-lg" style="border:none; max-width:500px; width:90%; animation: fadeIn 0.3s ease-in-out;">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h3 class="mb-0 text-primary">View Ticket</h3>
@@ -116,6 +117,50 @@
             </div>
         </dialog>
         
+
+        
+        <dialog id="editdialog" class="p-4 rounded shadow-lg" style="border:none; max-width:500px; width:90%; animation: fadeIn 0.3s ease-in-out;">
+            <form id="editform">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h3 class="mb-0 text-primary">Edit Ticket</h3>
+                <button type="button" class="btn-close" aria-label="Close" onclick="document.getElementById('editdialog').close()"></button>
+            </div>
+
+            <div id="edit_ticket" class="container-fluid border rounded p-3 mb-3" style="background-color: #f8f9fa; min-height: 100px;">
+            
+            </div>
+        
+            <div class="d-flex justify-content-end gap-2 mt-3">
+                  <button type="submit" class="btn btn-secondary" >Update</button>
+                <button type="button" class="btn btn-secondary" onclick="document.getElementById('editdialog').close()">Close</button>
+            </div>
+
+            </form>
+            
+        </dialog>
+
+           <dialog id="commentdialog" class="p-4 rounded shadow-lg" style="border:none; max-width:500px; width:90%; animation: fadeIn 0.3s ease-in-out;">
+             <form id="commentform">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 class="mb-0 text-primary">Add Comment</h3>
+            <button type="button" class="btn-close" aria-label="Close" onclick="document.getElementById('commentdialog').close()"></button>
+        </div>
+
+        <div id="addcomments" class="container-fluid border rounded p-3 mb-3" style="background-color: #f8f9fa; min-height: 100px;">
+            <div id="comments-list"></div>
+            <textarea id="edit_comments" class="form-control mb-2" placeholder="Type your comment"></textarea>
+        </div>
+    
+        <div class="d-flex justify-content-end gap-2 mt-3">
+<button type="submit" id="comment-submit" class="btn btn-secondary">Add Comment</button>
+                <button type="button" class="btn btn-secondary" onclick="document.getElementById('commentdialog').close()">Close</button>
+        </div>
+    </form>
+</dialog>
+
+
+
+
 <script src="assets/js/app.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 

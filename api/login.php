@@ -1,6 +1,8 @@
 <?php
 include "../config/db.php";
 error_reporting(0);
+session_start();
+
 
 $input = json_decode(file_get_contents("php://input"), true);
 $email = $input['email'] ?? '';
@@ -16,6 +18,7 @@ if($result->num_rows > 0){
     $user = $result->fetch_assoc();
 
     if($user['password'] === $password){
+         $_SESSION['user_id'] = $user['id'];
         echo json_encode([
             
             
